@@ -1,0 +1,443 @@
+/* ===========================
+   CyberShield AI Theme
+=========================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:#0F172A;
+    color:#F8FAFC;
+}
+
+/* ===========================
+   Navigation
+=========================== */
+
+nav{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:20px 60px;
+
+    background:#111827;
+
+    border-bottom:2px solid #2563EB;
+}
+
+.logo{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    color:#60A5FA;
+
+}
+
+nav ul{
+
+    display:flex;
+
+    list-style:none;
+
+}
+
+nav li{
+
+    margin-left:30px;
+
+}
+
+nav a{
+
+    color:white;
+
+    text-decoration:none;
+
+    transition:.3s;
+
+}
+
+nav a:hover{
+
+    color:#60A5FA;
+
+}
+
+/* ===========================
+   Hero
+=========================== */
+
+.hero{
+
+    text-align:center;
+
+    padding:90px 20px;
+
+}
+
+.hero h1{
+
+    font-size:60px;
+
+    color:#60A5FA;
+
+}
+
+.hero h2{
+
+    margin-top:20px;
+
+    font-size:34px;
+
+}
+
+.hero p{
+
+    width:70%;
+
+    margin:25px auto;
+
+    font-size:20px;
+
+    color:#CBD5E1;
+
+}
+
+.scan-btn{
+
+    display:inline-block;
+
+    margin-top:25px;
+
+    padding:15px 35px;
+
+    background:#2563EB;
+
+    color:white;
+
+    text-decoration:none;
+
+    border-radius:10px;
+
+    transition:.3s;
+
+}
+
+.scan-btn:hover{
+
+    background:#1D4ED8;
+
+    transform:scale(1.05);
+
+}
+
+/* ===========================
+   Features
+=========================== */
+
+.features{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:25px;
+
+    width:85%;
+
+    margin:auto;
+
+    margin-bottom:80px;
+
+}
+
+.card{
+
+    background:#1E293B;
+
+    padding:35px;
+
+    border-radius:15px;
+
+    transition:.3s;
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+    border:2px solid #2563EB;
+
+}
+
+.card h3{
+
+    color:#60A5FA;
+
+    margin-bottom:15px;
+
+}
+
+.card p{
+
+    color:#CBD5E1;
+
+}
+
+/* ===========================
+   Footer
+=========================== */
+
+footer{
+
+    text-align:center;
+
+    padding:25px;
+
+    background:#111827;
+
+    border-top:2px solid #2563EB;
+
+}
+
+/* ===========================
+   Scanner Page
+=========================== */
+
+.scanner-container{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:80px 20px;
+
+}
+
+.scanner-card{
+
+    background:#1E293B;
+
+    width:700px;
+
+    padding:40px;
+
+    border-radius:15px;
+
+    text-align:center;
+
+    box-shadow:0 0 20px rgba(0,0,0,.3);
+
+}
+
+.scanner-card h1{
+
+    color:#60A5FA;
+
+    margin-bottom:20px;
+
+}
+
+.scanner-card p{
+
+    color:#CBD5E1;
+
+    margin-bottom:30px;
+
+}
+
+.scanner-card input{
+
+    width:100%;
+
+    padding:15px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    margin-bottom:20px;
+
+    outline:none;
+
+}/* ===========================
+   Result
+=========================== */
+
+.result{
+
+    margin-top:40px;
+
+    background:#0F172A;
+
+    padding:25px;
+
+    border-radius:12px;
+
+    text-align:left;
+
+}
+
+.result h2{
+
+    margin-bottom:15px;
+
+    color:#60A5FA;
+
+}
+
+.result ul{
+
+    margin-top:15px;
+
+    padding-left:20px;
+
+}
+
+.result li{
+
+    margin-bottom:10px;
+
+}
+
+/* ==========================================
+   SECURITY REPORT CARD
+========================================== */
+
+.report-card{
+
+    margin-top:40px;
+
+    background:#1E293B;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    box-shadow:0 0 25px rgba(0,0,0,.35);
+
+}
+
+.report-card h2{
+
+    color:#60A5FA;
+
+    margin-bottom:25px;
+
+    text-align:center;
+
+}
+
+.status{
+
+    padding:18px;
+
+    border-radius:12px;
+
+    font-size:24px;
+
+    font-weight:bold;
+
+    text-align:center;
+
+    margin-bottom:30px;
+
+}
+
+.safe{
+
+    background:#14532D;
+
+    color:#86EFAC;
+
+}
+
+.danger{
+
+    background:#7F1D1D;
+
+    color:#FCA5A5;
+
+}
+
+.info{
+
+    margin-bottom:25px;
+
+}
+
+.info strong{
+
+    color:#60A5FA;
+
+    display:block;
+
+    margin-bottom:10px;
+
+    font-size:18px;
+
+}
+
+.info p{
+
+    color:white;
+
+}
+
+.info ul{
+
+    padding-left:20px;
+
+    margin-top:10px;
+
+}
+
+.info li{
+
+    margin-bottom:10px;
+
+    color:#E2E8F0;
+
+}
+
+.recommendation{
+
+    margin-top:30px;
+
+    padding:20px;
+
+    border-left:5px solid #3B82F6;
+
+    background:#0F172A;
+
+    border-radius:10px;
+
+}
+
+.recommendation strong{
+
+    color:#60A5FA;
+
+}
+
+.recommendation p{
+
+    margin-top:12px;
+
+    color:#E2E8F0;
+
+    line-height:1.6;
+
+}

@@ -1,0 +1,432 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="scanner-container">
+
+    <!-- ========================= -->
+    <!-- PAGE HEADER -->
+    <!-- ========================= -->
+
+    <div class="scanner-header">
+
+        <h1>🛡️ CyberShield AI</h1>
+
+        <p>
+            AI-Powered Phishing Detection Platform
+        </p>
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- SCANNER FORM -->
+    <!-- ========================= -->
+
+    <div class="scanner-box">
+
+        <h2>🔍 Scan a Website</h2>
+
+        <p>
+            Enter a website URL below to check for phishing indicators.
+        </p>
+
+        <form
+            action="{{ url_for('scanner') }}"
+            method="POST"
+        >
+
+            <input
+                type="text"
+                name="url"
+                placeholder="https://example.com"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit">
+                🔍 Scan Website
+            </button>
+
+        </form>
+
+        {% if error %}
+
+        <div class="error-message">
+            ⚠️ {{ error }}
+        </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ========================= -->
+    <!-- SCAN RESULT -->
+    <!-- ========================= -->
+
+    {% if result %}
+
+    <div class="result-container">
+
+
+        <!-- ========================= -->
+        <!-- STATUS -->
+        <!-- ========================= -->
+
+        {% if result.prediction == "PHISHING" %}
+
+        <div class="status phishing">
+            🔴 PHISHING DETECTED
+        </div>
+
+        {% else %}
+
+        <div class="status safe">
+            🟢 SAFE WEBSITE
+        </div>
+
+        {% endif %}
+
+
+        <!-- ========================= -->
+        <!-- WEBSITE -->
+        <!-- ========================= -->
+
+        <h2>🌐 Website</h2>
+
+        <div class="website-url">
+            {{ result.url }}
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- RISK SCORE -->
+        <!-- ========================= -->
+
+        <h2>📊 Risk Score</h2>
+
+        <div class="risk-box">
+
+            <div class="risk-score">
+                {{ result.score }} / 10
+            </div>
+
+            <div
+                class="risk-level
+                {% if result.risk_level == 'LOW RISK' %}
+                    low-risk
+                {% elif result.risk_level == 'MEDIUM RISK' %}
+                    medium-risk
+                {% else %}
+                    high-risk
+                {% endif %}
+                "
+            >
+                {{ result.risk_level }}
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- RULE-BASED ANALYSIS -->
+        <!-- ========================= -->
+
+        <h2>🔎 Security Analysis</h2>
+
+        <div class="analysis-box">
+
+            {% for reason in result.reasons %}
+
+                {% if not reason.startswith("AI model phishing probability:") %}
+
+                <div class="reason">
+                    ⚠️ {{ reason }}
+                </div>
+
+                {% endif %}
+
+            {% else %}
+
+            <div class="reason">
+                ✅ No suspicious rule-based indicators detected.
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- AI MODEL ANALYSIS -->
+        <!-- ========================= -->
+
+        <h2>🤖 AI Model Analysis</h2>
+
+        <div class="ai-analysis-box">
+
+
+            <!-- AI PROBABILITY -->
+
+            <div class="ai-probability">
+
+                <span>
+                    Phishing Probability
+                </span>
+
+                <strong>
+                    {{ "%.2f"|format(result.ai_probability * 100) }}%
+                </strong>
+
+            </div>
+
+
+            <!-- AI PROGRESS BAR -->
+
+            <div class="ai-progress-container">
+
+                <div class="ai-progress-label">
+
+                    <span>
+                        AI Risk Level
+                    </span>
+
+                    <span>
+                        {{ "%.2f"|format(result.ai_probability * 100) }}%
+                    </span>
+
+                </div>
+
+
+                <div class="ai-progress-track">
+
+                    <div
+                        class="ai-progress-bar"
+                        style="width: {{ result.ai_probability * 100 }}%;"
+                    ></div>
+
+                </div>
+
+            </div>
+
+
+            <!-- AI ASSESSMENT -->
+
+            {% if result.ai_probability >= 0.80 %}
+
+            <div class="ai-result high-ai">
+                🔴 AI-only assessment: HIGH phishing probability.
+            </div>
+
+            {% elif result.ai_probability >= 0.60 %}
+
+            <div class="ai-result medium-ai">
+                🟠 AI-only assessment: ELEVATED phishing probability.
+            </div>
+
+            {% elif result.ai_probability >= 0.30 %}
+
+            <div class="ai-result moderate-ai">
+                🟡 AI-only assessment: MODERATE phishing probability.
+            </div>
+
+            {% else %}
+
+            <div class="ai-result safe-ai">
+                🟢 AI-only assessment: LOW phishing probability.
+            </div>
+
+            {% endif %}
+
+
+            <!-- AI INFORMATION -->
+
+            <div class="ai-info">
+
+                🤖 The Random Forest machine-learning model evaluates
+                URL characteristics independently from the rule-based checks.
+
+            </div>
+
+
+            <!-- COMBINED RESULT EXPLANATION -->
+
+            <div class="ai-combined-result">
+
+                <strong>
+                    Why is the overall score higher?
+                </strong>
+
+                <p>
+                    The AI model provides an independent phishing probability.
+                    The final risk score combines AI analysis, rule-based
+                    indicators, and Google Safe Browsing to produce the
+                    overall security assessment.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- GOOGLE SAFE BROWSING -->
+        <!-- ========================= -->
+
+        <h2>🛡️ Google Safe Browsing</h2>
+
+        {% if result.google_threat_types %}
+
+        <div class="google-danger">
+
+            <div class="google-status-title">
+                🚨 KNOWN THREAT DETECTED
+            </div>
+
+            <p>
+                Google Safe Browsing identified this URL
+                as an unsafe resource.
+            </p>
+
+            <p>
+                <strong>Threat types:</strong>
+            </p>
+
+            <ul>
+
+                {% for threat in result.google_threat_types %}
+
+                <li>
+                    {{ threat }}
+                </li>
+
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+        {% else %}
+
+        <div class="google-safe">
+
+            <div class="google-status-title">
+                ✅ NO KNOWN THREATS
+            </div>
+
+        </div>
+
+        <p class="google-description">
+
+            Google Safe Browsing did not identify this URL
+            as a known unsafe resource.
+
+        </p>
+
+        {% endif %}
+
+
+        <!-- ========================= -->
+        <!-- OVERALL ASSESSMENT -->
+        <!-- ========================= -->
+
+        <h2>🧠 Overall Assessment</h2>
+
+        <div class="overall-assessment">
+
+            <div class="overall-score">
+                {{ result.score }} / 10
+            </div>
+
+            <div class="overall-level
+                {% if result.risk_level == 'LOW RISK' %}
+                    overall-low
+                {% elif result.risk_level == 'MEDIUM RISK' %}
+                    overall-medium
+                {% else %}
+                    overall-high
+                {% endif %}
+            ">
+                {{ result.risk_level }}
+            </div>
+
+
+            {% if result.prediction == "PHISHING" %}
+
+            <p class="overall-danger">
+
+                🔴 CyberShield AI classified this website as
+                <strong>PHISHING</strong> based on the combined
+                security analysis.
+
+            </p>
+
+            {% else %}
+
+            <p class="overall-safe">
+
+                🟢 CyberShield AI classified this website as
+                <strong>SAFE</strong> based on the combined
+                security analysis.
+
+            </p>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- RECOMMENDATION -->
+        <!-- ========================= -->
+
+        <h2>💡 Security Recommendation</h2>
+
+        <div class="recommendation">
+
+            {{ result.recommendation }}
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- DOWNLOAD REPORT -->
+        <!-- ========================= -->
+
+        <div class="download-container">
+
+            <a
+                href="{{ url_for('download_report') }}"
+                class="download-btn"
+            >
+                📄 Download Security Report
+            </a>
+
+        </div>
+
+
+        <!-- ========================= -->
+        <!-- FOOTER -->
+        <!-- ========================= -->
+
+        <div class="scanner-footer">
+
+            🛡️ Analysis performed by CyberShield AI
+
+            <br>
+
+            🤖 Rule-Based Detection
+            + Random Forest Machine Learning
+            + Google Safe Browsing
+
+        </div>
+
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

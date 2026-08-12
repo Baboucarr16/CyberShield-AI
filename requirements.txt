@@ -1,0 +1,9 @@
+Flask
+pandas
+scikit-learn
+joblib
+tldextract
+reportlab
+requests
+python-dotenv
+gunicorn

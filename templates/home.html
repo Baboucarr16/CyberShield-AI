@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="hero">
+
+    <div class="hero-content">
+
+        <h1>🛡️ CyberShield AI</h1>
+
+        <h2>Advanced AI-Powered Phishing Detection</h2>
+
+        <p>
+            Protect yourself from phishing websites using Artificial Intelligence
+            and rule-based URL analysis.
+        </p>
+
+        <a href="{{ url_for('scanner') }}" class="scan-btn">
+            🔍 Start Security Scan
+        </a>
+
+    </div>
+
+</section>
+
+<section class="features">
+
+    <div class="card">
+        <h3>🛡️ Rule-Based Detection</h3>
+        <p>
+            Detect suspicious URLs using advanced cybersecurity rules.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>🤖 AI Detection</h3>
+        <p>
+            Machine Learning identifies phishing websites with high accuracy.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>📖 Case Studies</h3>
+        <p>
+            Learn from real phishing attacks and discover how to avoid them.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>📊 Live Dashboard</h3>
+        <p>
+            Monitor scan statistics and phishing detection results in real time.
+        </p>
+    </div>
+
+</section>
+
+{% endblock %}

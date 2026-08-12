@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>CyberShield AI</title>
+
+
+    <!-- ========================= -->
+    <!-- MAIN CSS -->
+    <!-- ========================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+
+    <!-- ========================= -->
+    <!-- DASHBOARD CSS -->
+    <!-- ========================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+
+    <!-- ========================= -->
+    <!-- SCANNER CSS -->
+    <!-- ========================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/scanner.css') }}">
+
+
+    <!-- ========================= -->
+    <!-- CASE STUDY CSS -->
+    <!-- ========================= -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/case_study.css') }}">
+
+</head>
+
+
+<body>
+
+
+    <!-- ========================= -->
+    <!-- HEADER -->
+    <!-- ========================= -->
+
+    <header>
+
+        <div class="logo">
+            🛡️ CyberShield AI
+        </div>
+
+
+        <nav>
+
+            <ul>
+
+                <li>
+                    <a href="{{ url_for('home') }}">
+                        Home
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="{{ url_for('scanner') }}">
+                        Scanner
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="{{ url_for('case_study') }}">
+                        Case Study
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="{{ url_for('dashboard') }}">
+                        Dashboard
+                    </a>
+                </li>
+
+
+                <li>
+                    <a href="{{ url_for('about') }}">
+                        About
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+
+    </header>
+
+
+    <!-- ========================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================= -->
+
+    <main>
+
+        {% block content %}
+
+        {% endblock %}
+
+    </main>
+
+
+    <!-- ========================= -->
+    <!-- FOOTER -->
+    <!-- ========================= -->
+
+    <footer>
+
+        © 2026 CyberShield AI |
+        AI-Powered Phishing Detection Platform
+
+    </footer>
+
+
+</body>
+
+</html>

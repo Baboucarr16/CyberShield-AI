@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/about.css') }}">
+
+<div class="about-container">
+
+    <!-- PAGE HEADER -->
+    <section class="about-header">
+
+        <div class="about-icon">
+            🛡️
+        </div>
+
+        <h1>About CyberShield AI</h1>
+
+        <p>
+            AI-Powered Phishing Detection Platform
+        </p>
+
+    </section>
+
+
+    <!-- ABOUT THE PROJECT -->
+    <section class="about-card">
+
+        <h2>🛡️ What is CyberShield AI?</h2>
+
+        <p>
+            CyberShield AI is a web-based phishing detection platform
+            designed to help users identify potentially dangerous websites
+            before visiting them.
+        </p>
+
+        <p>
+            The system analyzes website URLs and looks for suspicious
+            characteristics that may indicate phishing activity.
+            It then provides a risk score, security analysis,
+            and a clear recommendation to the user.
+        </p>
+
+    </section>
+
+
+    <!-- PURPOSE -->
+    <section class="about-card">
+
+        <h2>🎯 Our Purpose</h2>
+
+        <p>
+            The main purpose of CyberShield AI is to provide users with
+            a simple and accessible way to check suspicious website URLs.
+        </p>
+
+        <div class="purpose-grid">
+
+            <div class="purpose-box">
+                <div class="purpose-icon">🔍</div>
+                <h3>Detect</h3>
+                <p>
+                    Identify suspicious URL characteristics
+                    associated with phishing.
+                </p>
+            </div>
+
+            <div class="purpose-box">
+                <div class="purpose-icon">📊</div>
+                <h3>Analyze</h3>
+                <p>
+                    Analyze different URL features and
+                    security indicators.
+                </p>
+            </div>
+
+            <div class="purpose-box">
+                <div class="purpose-icon">🛡️</div>
+                <h3>Protect</h3>
+                <p>
+                    Help users make safer decisions before
+                    visiting suspicious websites.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- HOW IT WORKS -->
+    <section class="about-card">
+
+        <h2>⚙️ How CyberShield AI Works</h2>
+
+        <div class="workflow">
+
+            <div class="workflow-step">
+
+                <div class="step-number">1</div>
+
+                <h3>Enter URL</h3>
+
+                <p>
+                    The user enters a website URL into
+                    the scanner.
+                </p>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-number">2</div>
+
+                <h3>Analyze URL</h3>
+
+                <p>
+                    CyberShield AI examines important
+                    URL characteristics.
+                </p>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-number">3</div>
+
+                <h3>Detect Threats</h3>
+
+                <p>
+                    The detection engine evaluates
+                    suspicious indicators.
+                </p>
+
+            </div>
+
+
+            <div class="workflow-step">
+
+                <div class="step-number">4</div>
+
+                <h3>Show Result</h3>
+
+                <p>
+                    The system displays the security
+                    result and risk score.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FEATURES -->
+    <section class="about-card">
+
+        <h2>🔐 Key Features</h2>
+
+        <div class="features-grid">
+
+            <div class="feature-box">
+                <span>🤖</span>
+                <h3>Phishing Detection</h3>
+                <p>
+                    Detects suspicious website characteristics
+                    that may indicate phishing.
+                </p>
+            </div>
+
+
+            <div class="feature-box">
+                <span>📊</span>
+                <h3>Risk Scoring</h3>
+                <p>
+                    Provides a risk score between 0 and 10
+                    to help users understand website risk.
+                </p>
+            </div>
+
+
+            <div class="feature-box">
+                <span>🛡️</span>
+                <h3>Google Safe Browsing</h3>
+                <p>
+                    Checks URLs against known unsafe
+                    resource information.
+                </p>
+            </div>
+
+
+            <div class="feature-box">
+                <span>📄</span>
+                <h3>Security Reports</h3>
+                <p>
+                    Allows users to download a security
+                    report after scanning a website.
+                </p>
+            </div>
+
+
+            <div class="feature-box">
+                <span>📈</span>
+                <h3>Dashboard</h3>
+                <p>
+                    Displays scan statistics and recent
+                    scanning activity.
+                </p>
+            </div>
+
+
+            <div class="feature-box">
+                <span>🔎</span>
+                <h3>Security Analysis</h3>
+                <p>
+                    Shows suspicious indicators detected
+                    during the analysis.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- TECHNOLOGIES -->
+    <section class="about-card">
+
+        <h2>💻 Technologies Used</h2>
+
+        <div class="technology-grid">
+
+            <div class="technology">
+                <strong>🐍 Python</strong>
+                <span>Backend & Detection</span>
+            </div>
+
+            <div class="technology">
+                <strong>🌐 Flask</strong>
+                <span>Web Application</span>
+            </div>
+
+            <div class="technology">
+                <strong>📄 HTML</strong>
+                <span>Frontend Structure</span>
+            </div>
+
+            <div class="technology">
+                <strong>🎨 CSS</strong>
+                <span>User Interface</span>
+            </div>
+
+            <div class="technology">
+                <strong>🤖 Machine Learning</strong>
+                <span>Phishing Detection</span>
+            </div>
+
+            <div class="technology">
+                <strong>🛡️ Google Safe Browsing</strong>
+                <span>Threat Verification</span>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PROJECT GOAL -->
+    <section class="about-card final-card">
+
+        <h2>🚀 Project Goal</h2>
+
+        <p>
+            CyberShield AI aims to make phishing detection easier
+            and more understandable for everyday users.
+        </p>
+
+        <div class="final-message">
+
+            🛡️
+            <strong>Think before you click.</strong>
+
+            <p>
+                Stay alert. Stay protected.
+            </p>
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}
