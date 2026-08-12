@@ -23,6 +23,7 @@ from feature_extractor import extract_features
 
 DATASET_PATH = os.path.join(
     PROJECT_ROOT,
+    "dataset",
     "Phishing_Legitimate_full.csv"
 )
 
