@@ -1,6 +1,32 @@
-.env
+# Python
 __pycache__/
-*.pyc
-venv/
+*.py[cod]
+*.pyd
+*.egg-info/
+build/
+dist/
 .venv/
-security_report.pdf
+venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Generated model and runtime files
+model/*.joblib
+model/*.pkl
+instance/
+reports/
+generated_reports/
+*.log
+.pytest_cache/
+htmlcov/
+*.coverage
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

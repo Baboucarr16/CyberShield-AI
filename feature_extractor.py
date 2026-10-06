@@ -1,251 +1,69 @@
-from urllib.parse import urlparse
-import tldextract
+"""URL-only features shared by the rule detector and training adapter."""
+from urllib.parse import urlsplit, urlunsplit
+import ipaddress
 import re
 
-
-# =========================================================
-# SUSPICIOUS WORDS
-# =========================================================
-
-SUSPICIOUS_WORDS = [
-    "login",
-    "verify",
-    "verification",
-    "secure",
-    "account",
-    "update",
-    "password",
-    "signin",
-    "bank",
-    "paypal",
-    "confirm",
-    "security",
-    "free",
-    "bonus",
-    "gift"
-]
+SUSPICIOUS_WORDS = ["login", "verify", "secure", "bank", "update", "free", "bonus", "gift", "paypal"]
 
 
-# =========================================================
-# BRAND NAMES
-# =========================================================
+def normalize_url(value):
+    if not isinstance(value, str):
+        raise ValueError("Enter a valid HTTP or HTTPS URL.")
+    value = value.strip()
+    if not value or len(value) > 2048 or any(ord(ch) < 32 or ch.isspace() for ch in value) or "\\" in value:
+        raise ValueError("Enter a valid HTTP or HTTPS URL.")
+    if re.match(r"^[a-z][a-z0-9+.-]*:", value, re.IGNORECASE) and "://" not in value:
+        raise ValueError("Only HTTP and HTTPS URLs are supported.")
+    if "://" not in value:
+        value = "https://" + value
+    try:
+        parsed = urlsplit(value)
+        host = parsed.hostname
+        _ = parsed.port
+    except ValueError as exc:
+        raise ValueError("Enter a valid HTTP or HTTPS URL.") from exc
+    if parsed.scheme.lower() not in ("http", "https") or not host:
+        raise ValueError("Enter a valid HTTP or HTTPS URL.")
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("URLs containing embedded credentials are not allowed.")
+    try:
+        ip = ipaddress.ip_address(host)
+        normalized_host = f"[{ip.compressed}]" if ip.version == 6 else ip.compressed
+    except ValueError:
+        try:
+            normalized_host = host.encode("idna").decode("ascii").lower().rstrip(".")
+        except UnicodeError as exc:
+            raise ValueError("Enter a valid HTTP or HTTPS URL.") from exc
+        labels = normalized_host.split(".")
+        valid_label = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")
+        if (not normalized_host or len(normalized_host) > 253
+                or (len(labels) < 2 and normalized_host != "localhost")
+                or any(not valid_label.fullmatch(label) for label in labels)
+                or re.fullmatch(r"[0-9.]+", normalized_host)):
+            raise ValueError("Enter a valid HTTP or HTTPS URL.")
+    port = parsed.port
+    netloc = normalized_host + (f":{port}" if port is not None else "")
+    return urlunsplit((parsed.scheme.lower(), netloc, parsed.path or "/", parsed.query, parsed.fragment))
 
-BRAND_NAMES = [
-    "paypal",
-    "google",
-    "facebook",
-    "instagram",
-    "microsoft",
-    "apple",
-    "amazon",
-    "netflix",
-    "linkedin",
-    "bank"
-]
-
-
-# =========================================================
-# EXTRACT FEATURES
-# =========================================================
 
 def extract_features(url):
-
-    features = {}
-
-    parsed = urlparse(url)
-
-    hostname = parsed.hostname or ""
-
-    path = parsed.path or ""
-
-    query = parsed.query or ""
-
-    url_lower = url.lower()
-
-    hostname_lower = hostname.lower()
-
-
-    # =====================================================
-    # BASIC URL FEATURES
-    # =====================================================
-
-    features["url_length"] = len(url)
-
-    features["dot_count"] = url.count(".")
-
-    features["hyphen_count"] = url.count("-")
-
-    features["has_at"] = 1 if "@" in url else 0
-
-    features["has_ip"] = (
-        1
-        if re.search(
-            r"(\d{1,3}\.){3}\d{1,3}",
-            url
-        )
-        else 0
-    )
-
-
-    # =====================================================
-    # HTTPS
-    # =====================================================
-
-    features["https"] = (
-        1
-        if parsed.scheme.lower() == "https"
-        else 0
-    )
-
-    features["no_https"] = (
-        1
-        if parsed.scheme.lower() != "https"
-        else 0
-    )
-
-
-    # =====================================================
-    # HOSTNAME FEATURES
-    # =====================================================
-
-    features["hostname_length"] = len(hostname)
-
-    features["dash_in_hostname"] = hostname.count("-")
-
-    features["hostname_dots"] = hostname.count(".")
-
-
-    # =====================================================
-    # DOMAIN FEATURES
-    # =====================================================
-
-    extracted = tldextract.extract(url)
-
-    domain = extracted.domain or ""
-
-    subdomain = extracted.subdomain or ""
-
-    features["domain_length"] = len(domain)
-
-    features["domain_in_subdomains"] = (
-        1
-        if domain
-        and domain.lower() in subdomain.lower()
-        else 0
-    )
-
-
-    # =====================================================
-    # PATH FEATURES
-    # =====================================================
-
-    features["path_length"] = len(path)
-
-    features["domain_in_path"] = (
-        1
-        if domain
-        and domain.lower() in path.lower()
-        else 0
-    )
-
-    features["double_slash_in_path"] = (
-        1
-        if "//" in path
-        else 0
-    )
-
-
-    # =====================================================
-    # QUERY FEATURES
-    # =====================================================
-
-    features["query_length"] = len(query)
-
-    if query:
-
-        query_parts = query.split("&")
-
-        features["query_components"] = len(
-            query_parts
-        )
-
-    else:
-
-        features["query_components"] = 0
-
-
-    features["ampersand_count"] = url.count("&")
-
-    features["hash_count"] = url.count("#")
-
-    features["percent_count"] = url.count("%")
-
-    features["underscore_count"] = url.count("_")
-
-
-    # =====================================================
-    # NUMERIC CHARACTERS
-    # =====================================================
-
-    features["numeric_chars"] = sum(
-        character.isdigit()
-        for character in url
-    )
-
-
-    # =====================================================
-    # SUSPICIOUS WORDS
-    # =====================================================
-
-    found_words = []
-
-    for word in SUSPICIOUS_WORDS:
-
-        if word in url_lower:
-
-            found_words.append(word)
-
-
-    features["sensitive_words"] = len(
-        found_words
-    )
-
-
-    # =====================================================
-    # EMBEDDED BRAND NAME
-    # =====================================================
-
-    brand_found = False
-
-    for brand in BRAND_NAMES:
-
-        if brand in url_lower:
-
-            brand_found = True
-
-            break
-
-
-    features["embedded_brand"] = (
-        1
-        if brand_found
-        else 0
-    )
-
-
-    # =====================================================
-    # HTTPS INSIDE HOSTNAME
-    # =====================================================
-
-    features["https_in_hostname"] = (
-        1
-        if "https" in hostname_lower
-        else 0
-    )
-
-
-    # =====================================================
-    # RETURN
-    # =====================================================
-
-    return features
+    url = normalize_url(url)
+    parsed = urlsplit(url)
+    host = parsed.hostname or ""
+    host_labels = host.split(".")
+    path = parsed.path or "/"
+    query = parsed.query
+    words = sum(word in url.lower() for word in SUSPICIOUS_WORDS)
+    try:
+        ipaddress.ip_address(host.strip("[]"))
+        has_ip = 1
+    except ValueError:
+        has_ip = 0
+    return {
+        "url_length": len(url), "https": int(parsed.scheme.lower() == "https"),
+        "dot_count": url.count("."), "hyphen_count": url.count("-"),
+        "has_at": int("@" in url), "has_ip": has_ip,
+        "suspicious_words": words, "domain_length": len(host_labels[-2]) if len(host_labels) > 1 else len(host),
+        "hostname": host, "path": path, "query": query, "host_labels": host_labels,
+        "full_url": url,
+    }

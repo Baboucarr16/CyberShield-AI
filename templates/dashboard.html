@@ -1,396 +1,72 @@
 {% extends "base.html" %}
-
+{% block title %}Dashboard — CyberShield AI{% endblock %}
 {% block content %}
 
-<div class="dashboard-container">
-
-    <!-- =====================================================
-         DASHBOARD HEADER
-         ===================================================== -->
-
-    <div class="dashboard-header">
-
-        <h1>📊 CyberShield AI Dashboard</h1>
-
-        <p class="subtitle">
-            Monitor your website security scans and phishing detection results.
-        </p>
-
+<section class="page-head">
+    <div class="container page-head-row">
+        <div>
+            <p class="eyebrow">Monitoring</p>
+            <h1>Security dashboard</h1>
+            <p class="section-sub">Session-local overview of scans run in this browser. The backend route passes no stored history, so this view aggregates your recent activity on-device.</p>
+        </div>
+        <div class="engine-pill" role="status">
+            <span class="pulse-dot" aria-hidden="true"></span>
+            <span><strong>Detection engine</strong><br><span class="muted">Operational &middot; rules + Random Forest, local</span></span>
+        </div>
     </div>
+</section>
 
-
-    <!-- =====================================================
-         STAT CARDS
-         ===================================================== -->
-
-    <div class="stats-grid">
-
-        <!-- TOTAL SCANS -->
-
-        <div class="stat-card">
-
-            <div class="card-icon">🌐</div>
-
-            <h2>Total Scans</h2>
-
-            <p class="number">
-                {{ stats.total_scans }}
-            </p>
-
-            <p>Websites scanned</p>
-
+<section class="section-tight">
+    <div class="container">
+        <div class="grid-4 stat-grid">
+            <article class="card stat">
+                <p class="stat-label">Total scans</p>
+                <strong class="stat-num" data-stat-total>0</strong>
+                <p class="muted small">This session</p>
+            </article>
+            <article class="card stat">
+                <p class="stat-label">Safe websites</p>
+                <strong class="stat-num stat-safe" data-stat-safe>0</strong>
+                <p class="muted small">Verdict: legitimate</p>
+            </article>
+            <article class="card stat">
+                <p class="stat-label">Phishing detected</p>
+                <strong class="stat-num stat-danger" data-stat-phish>0</strong>
+                <p class="muted small">Verdict: phishing</p>
+            </article>
+            <article class="card stat">
+                <p class="stat-label">Engine status</p>
+                <strong class="stat-num stat-ok"><span class="dot dot-green"></span> Online</strong>
+                <p class="muted small">7 rules &middot; threshold 4/10</p>
+            </article>
         </div>
 
+        <div class="dash-grid">
+            <section class="panel" aria-labelledby="h-recent">
+                <div class="panel-row">
+                    <h2 id="h-recent">Recent scans</h2>
+                    <button type="button" class="link-btn" data-clear-history>Clear history</button>
+                </div>
+                <div data-history-wrap>
+                    <p class="muted" data-history-empty>No scans yet in this session. <a href="{{ url_for('scanner') }}">Run your first scan</a>.</p>
+                    <ul class="history-list" data-history-list hidden></ul>
+                </div>
+            </section>
 
-        <!-- SAFE WEBSITES -->
-
-        <div class="stat-card">
-
-            <div class="card-icon">🟢</div>
-
-            <h2>Safe Websites</h2>
-
-            <p class="number">
-                {{ stats.safe_websites }}
-            </p>
-
-            <p>Safe results</p>
-
+            <section class="panel" aria-labelledby="h-health">
+                <h2 id="h-health">Engine health</h2>
+                <ul class="health-list">
+                    <li><span class="dot dot-green"></span> Rule engine <span class="muted">— 7 checks loaded</span></li>
+                    <li><span class="dot dot-green"></span> Scoring service <span class="muted">— threshold 4 / 10</span></li>
+                    <li><span class="dot dot-amber"></span> External reputation feeds <span class="muted">— not connected in this build</span></li>
+                </ul>
+                <div class="meter-row"><span>Session detection rate</span><strong data-stat-rate>—</strong></div>
+                <div class="risk-bar" role="img" aria-label="Session phishing rate"><span data-rate-fill style="width:0%"></span></div>
+                <p class="muted small">Detection rate = phishing verdicts ÷ total session scans.</p>
+                <a class="btn btn-secondary btn-block" href="{{ url_for('scanner') }}">Open scanner</a>
+            </section>
         </div>
-
-
-        <!-- PHISHING -->
-
-        <div class="stat-card">
-
-            <div class="card-icon">🔴</div>
-
-            <h2>Phishing Detected</h2>
-
-            <p class="number">
-                {{ stats.phishing_websites }}
-            </p>
-
-            <p>Threats detected</p>
-
-        </div>
-
-
-        <!-- DETECTION ENGINE -->
-
-        <div class="stat-card">
-
-            <div class="card-icon">🛡️</div>
-
-            <h2>Detection Engine</h2>
-
-            <p class="number engine-status">
-                ACTIVE
-            </p>
-
-            <p>CyberShield AI</p>
-
-        </div>
-
     </div>
-
-
-    <!-- =====================================================
-         DETECTION SUMMARY
-         ===================================================== -->
-
-    <div class="report-card">
-
-        <h2>📈 Detection Summary</h2>
-
-
-        {% if stats.total_scans > 0 %}
-
-            {% set safe_percentage =
-                (stats.safe_websites / stats.total_scans * 100) | round(1)
-            %}
-
-            {% set phishing_percentage =
-                (stats.phishing_websites / stats.total_scans * 100) | round(1)
-            %}
-
-        {% else %}
-
-            {% set safe_percentage = 0 %}
-            {% set phishing_percentage = 0 %}
-
-        {% endif %}
-
-
-        <!-- SAFE -->
-
-        <div class="progress-item">
-
-            <span class="progress-label">
-                <span class="legend-dot safe-dot"></span>
-                Safe Websites
-            </span>
-
-            <progress
-                value="{{ safe_percentage }}"
-                max="100">
-            </progress>
-
-            <span class="percentage">
-                {{ safe_percentage }}%
-            </span>
-
-        </div>
-
-
-        <!-- PHISHING -->
-
-        <div class="progress-item">
-
-            <span class="progress-label">
-                <span class="legend-dot phishing-dot"></span>
-                Phishing Websites
-            </span>
-
-            <progress
-                value="{{ phishing_percentage }}"
-                max="100">
-            </progress>
-
-            <span class="percentage">
-                {{ phishing_percentage }}%
-            </span>
-
-        </div>
-
-    </div>
-
-
-    <!-- =====================================================
-         RECENT SCAN ACTIVITY
-         ===================================================== -->
-
-    <div class="activity-card">
-
-        <div class="activity-header">
-
-            <h2>📝 Recent Scan Activity</h2>
-
-            <p class="subtitle">
-                View and filter your latest website security scans.
-            </p>
-
-        </div>
-
-
-        <!-- =================================================
-             SEARCH
-             ================================================= -->
-
-        <div class="history-controls">
-
-            <input
-                type="text"
-                id="searchInput"
-                placeholder="🔎 Search website..."
-                onkeyup="filterHistory()"
-            >
-
-        </div>
-
-
-        <!-- =================================================
-             FILTER BUTTONS
-             ================================================= -->
-
-        <div class="filter-buttons">
-
-            <button
-                type="button"
-                onclick="setFilter('ALL')"
-                class="filter-btn active"
-                id="allFilter">
-
-                ALL
-
-            </button>
-
-
-            <button
-                type="button"
-                onclick="setFilter('SAFE')"
-                class="filter-btn"
-                id="safeFilter">
-
-                <span class="button-dot safe-button-dot"></span>
-                SAFE
-
-            </button>
-
-
-            <button
-                type="button"
-                onclick="setFilter('PHISHING')"
-                class="filter-btn"
-                id="phishingFilter">
-
-                <span class="button-dot phishing-button-dot"></span>
-                PHISHING
-
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             HISTORY TABLE
-             ================================================= -->
-
-        {% if history %}
-
-        <div class="table-container">
-
-            <table id="historyTable">
-
-                <colgroup>
-                    <col class="time-column">
-                    <col class="website-column">
-                    <col class="status-column">
-                    <col class="score-column">
-                </colgroup>
-
-
-                <thead>
-
-                    <tr>
-
-                        <th>Time</th>
-
-                        <th>Website</th>
-
-                        <th>Status</th>
-
-                        <th>Risk Score</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for scan in history %}
-
-                    <tr
-                        data-status="{{ scan.prediction }}"
-                        data-url="{{ scan.url | lower }}"
-                    >
-
-                        <!-- TIME -->
-
-                        <td class="time-cell">
-
-                            <span class="time-icon">🕘</span>
-
-                            <span>
-                                {{ scan.time }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- WEBSITE -->
-
-                        <td class="website-cell">
-
-                            <span class="website-icon">🌐</span>
-
-                            <span class="website-url">
-                                {{ scan.url }}
-                            </span>
-
-                        </td>
-
-
-                        <!-- STATUS -->
-
-                        {% if scan.prediction == "PHISHING" %}
-
-                        <td class="status-cell">
-
-                            <span class="status danger">
-
-                                <span class="status-dot"></span>
-
-                                <span class="status-text">
-                                    PHISHING
-                                </span>
-
-                            </span>
-
-                        </td>
-
-                        {% else %}
-
-                        <td class="status-cell">
-
-                            <span class="status safe">
-
-                                <span class="status-dot"></span>
-
-                                <span class="status-text">
-                                    SAFE
-                                </span>
-
-                            </span>
-
-                        </td>
-
-                        {% endif %}
-
-
-                        <!-- SCORE -->
-
-                        <td class="score-cell">
-
-                            {{ scan.score }} / 10
-
-                        </td>
-
-                    </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- NO SEARCH RESULTS -->
-
-        <p
-            id="noResults"
-            style="display: none;">
-
-            No matching scans found.
-
-        </p>
-
-
-        {% else %}
-
-        <p class="no-history">
-
-            No scans have been recorded yet.
-
-        </p>
-
-        {% endif %}
-
-    </div>
-
-</div>
+</section>
 
 {% endblock %}

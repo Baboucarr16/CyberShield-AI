@@ -1,18 +1,17 @@
+"""Small command-line smoke test for the detector."""
 from detector import detect_phishing
 
-url = input("Enter URL: ")
 
-prediction, score, reasons = detect_phishing(url)
-
-print("\n========== RESULT ==========\n")
-
-print("Prediction :", prediction)
-print("Risk Score :", score)
-
-print("\nReasons:")
-
-if reasons:
+if __name__ == "__main__":
+    url = input("Enter URL: ").strip()
+    try:
+        prediction, score, reasons, recommendation = detect_phishing(url)
+    except ValueError as exc:
+        raise SystemExit(str(exc))
+    print("\n========== RESULT ==========\n")
+    print("Prediction:", prediction)
+    print("Risk score:", score, "/ 10")
+    print("\nReasons:")
     for reason in reasons:
         print("-", reason)
-else:
-    print("No suspicious indicators found.")
+    print("\nRecommendation:", recommendation)

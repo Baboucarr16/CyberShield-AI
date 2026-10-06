@@ -1,79 +1,43 @@
-# 🛡️ CyberShield AI
+# CyberShield AI
 
-### AI-Powered Phishing Detection Platform
+CyberShield AI is a Flask application that screens URL structure using a Random Forest and a rule-based detector. It does not fetch submitted pages; results are advisory and cannot guarantee a site is safe.
 
-CyberShield AI is a web-based phishing detection platform that analyzes website URLs using **machine learning, rule-based security analysis, and Google Safe Browsing** to identify potential phishing threats.
+## Detection and model limits
 
-The system converts URL characteristics into machine-learning features, uses a trained Random Forest model to estimate phishing probability, checks for suspicious URL patterns, and verifies the URL against Google Safe Browsing.
+Training uses `dataset/Phishing_Legitimate_full.csv` (10,000 rows, 48 numeric features, labels 0/1). The latest deterministic 80/20 stratified holdout run achieved **98.45% accuracy on that dataset**. This is not a real-world URL accuracy claim.
 
----
+The shared `model_features.py` schema fixes the exact 48 feature names and order for both training and inference. Live inference can derive 21 structural values from the URL. The remaining 27 CSV features depend on page content, links, forms, or browser behavior and are set to zero because this application does not retrieve webpage content. The Random Forest's class-1 probability is shown separately from the final 0-10 risk score. For scoring, model probability contributes `floor(probability * 8)` points (so 50% contributes 4 points); rule indicators contribute up to 10 points. The final score is the greater of those two signals, capped at 10. Scores of 4 or more are classified as phishing. If a valid model artifact is absent or incompatible, URL rule detection remains available and the model probability is unavailable.
 
-## 🚀 Features
+Google Safe Browsing is **not implemented**. The scanner makes no Safe Browsing request and does not need an API key. There is currently no PDF report generator or download route. Scan history is stored in browser local storage, not by the backend.
 
-- 🤖 **Random Forest Machine Learning**
-  - Trained on phishing and legitimate URL data
-  - Produces a phishing probability for each scanned URL
-  - Current model accuracy: **87%** on the project's test split
+## Local setup
 
-- 🔎 **Rule-Based Phishing Detection**
-  - Detects HTTP usage
-  - Checks for multiple hyphens
-  - Detects suspicious keywords
-  - Detects IP-based URLs
-  - Checks for suspicious URL characteristics
+Use Python 3.10 or newer. From the project root:
 
-- 🛡️ **Google Safe Browsing Integration**
-  - Checks whether Google identifies the URL as a known unsafe resource
-  - Displays known threat information when available
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python model/train_model.py
+python app.py
+```
 
-- 📊 **Risk Scoring**
-  - Produces a risk score from **0 to 10**
-  - Classifies results as:
-    - LOW RISK
-    - MEDIUM RISK
-    - HIGH RISK
+Open `http://127.0.0.1:5000/scanner`. Training reads the dataset and writes `model/phishing_model.joblib` relative to the project files. The generated artifact is ignored by Git.
 
-- 📈 **Security Dashboard**
-  - Total scans
-  - Safe websites
-  - Phishing detections
-  - Recent scan activity
-  - Detection summary
+## Render deployment
 
-- 📄 **Automated Security Reports**
-  - Generates downloadable PDF reports
-  - Includes AI probability
-  - Rule-based findings
-  - Google Safe Browsing result
-  - Overall risk assessment
+Configure the Render web service with:
 
-- 🕒 **Scan History**
-  - Stores previous scan results
-  - Displays recent scanning activity
+- **Build command:** `pip install -r requirements.txt && python model/train_model.py`
+- **Start command:** `gunicorn app:app`
+- **Environment:** set a long, random `SECRET_KEY`; leave `FLASK_DEBUG` unset or set it to `0`.
 
----
+Training during build creates the ignored model artifact on the deployed build image. Confirm the dataset is included in the deployment source. The application generates a secure per-process fallback secret if `SECRET_KEY` is missing, but production should set a stable secret explicitly.
 
-## 🧠 How CyberShield AI Works
+## Tests and CLI
 
-```text
-                    User enters URL
-                           │
-                           ▼
-                    Flask Application
-                           │
-                           ▼
-                    Detection Engine
-                           │
-              ┌────────────┼────────────┐
-              │            │            │
-              ▼            ▼            ▼
-        AI Model      Rule-Based    Google Safe
-        Analysis       Analysis      Browsing
-              │            │            │
-              └────────────┼────────────┘
-                           ▼
-                     Risk Assessment
-                           │
-              ┌────────────┴────────────┐
-              ▼                         ▼
-        Web Dashboard             PDF Report
+```powershell
+python -m pytest -q
+python detect_test.py
+```

@@ -1,432 +1,184 @@
 {% extends "base.html" %}
-
+{% block title %}Scanner — CyberShield AI{% endblock %}
 {% block content %}
 
-<div class="scanner-container">
-
-    <!-- ========================= -->
-    <!-- PAGE HEADER -->
-    <!-- ========================= -->
-
-    <div class="scanner-header">
-
-        <h1>🛡️ CyberShield AI</h1>
-
-        <p>
-            AI-Powered Phishing Detection Platform
-        </p>
-
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">Scanner</p>
+        <h1>Website Security Scanner</h1>
+        <p class="section-sub">Analyze any URL with the CyberShield heuristic engine. Results are instant, local, and fully explained.</p>
     </div>
+</section>
 
+<section class="section-tight">
+    <div class="container narrow">
 
-    <!-- ========================= -->
-    <!-- SCANNER FORM -->
-    <!-- ========================= -->
-
-    <div class="scanner-box">
-
-        <h2>🔍 Scan a Website</h2>
-
-        <p>
-            Enter a website URL below to check for phishing indicators.
-        </p>
-
-        <form
-            action="{{ url_for('scanner') }}"
-            method="POST"
-        >
-
-            <input
-                type="text"
-                name="url"
-                placeholder="https://example.com"
-                autocomplete="off"
-                required
-            >
-
-            <button type="submit">
-                🔍 Scan Website
-            </button>
-
-        </form>
-
-        {% if error %}
-
-        <div class="error-message">
-            ⚠️ {{ error }}
-        </div>
-
-        {% endif %}
-
-    </div>
-
-
-    <!-- ========================= -->
-    <!-- SCAN RESULT -->
-    <!-- ========================= -->
-
-    {% if result %}
-
-    <div class="result-container">
-
-
-        <!-- ========================= -->
-        <!-- STATUS -->
-        <!-- ========================= -->
-
-        {% if result.prediction == "PHISHING" %}
-
-        <div class="status phishing">
-            🔴 PHISHING DETECTED
-        </div>
-
-        {% else %}
-
-        <div class="status safe">
-            🟢 SAFE WEBSITE
-        </div>
-
-        {% endif %}
-
-
-        <!-- ========================= -->
-        <!-- WEBSITE -->
-        <!-- ========================= -->
-
-        <h2>🌐 Website</h2>
-
-        <div class="website-url">
-            {{ result.url }}
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- RISK SCORE -->
-        <!-- ========================= -->
-
-        <h2>📊 Risk Score</h2>
-
-        <div class="risk-box">
-
-            <div class="risk-score">
-                {{ result.score }} / 10
-            </div>
-
-            <div
-                class="risk-level
-                {% if result.risk_level == 'LOW RISK' %}
-                    low-risk
-                {% elif result.risk_level == 'MEDIUM RISK' %}
-                    medium-risk
-                {% else %}
-                    high-risk
-                {% endif %}
-                "
-            >
-                {{ result.risk_level }}
-            </div>
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- RULE-BASED ANALYSIS -->
-        <!-- ========================= -->
-
-        <h2>🔎 Security Analysis</h2>
-
-        <div class="analysis-box">
-
-            {% for reason in result.reasons %}
-
-                {% if not reason.startswith("AI model phishing probability:") %}
-
-                <div class="reason">
-                    ⚠️ {{ reason }}
+        <div class="scanner-card">
+            <form method="POST" action="{{ url_for('scanner') }}" data-scan-form novalidate>
+                <label class="field-label" for="scan-url">URL to analyze</label>
+                <div class="scan-input-wrap">
+                    <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+                    <input id="scan-url" type="text" name="url" inputmode="url" autocomplete="url"
+                           placeholder="https://example.com/suspicious-login" required
+                           value="{% if result %}{{ result.url }}{% endif %}"
+                           aria-describedby="scan-hint scan-error">
+                    <button type="submit" class="btn btn-primary" data-scan-btn>
+                        <span data-btn-label>Analyze Website</span>
+                    </button>
                 </div>
-
-                {% endif %}
-
-            {% else %}
-
-            <div class="reason">
-                ✅ No suspicious rule-based indicators detected.
-            </div>
-
-            {% endfor %}
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- AI MODEL ANALYSIS -->
-        <!-- ========================= -->
-
-        <h2>🤖 AI Model Analysis</h2>
-
-        <div class="ai-analysis-box">
-
-
-            <!-- AI PROBABILITY -->
-
-            <div class="ai-probability">
-
-                <span>
-                    Phishing Probability
-                </span>
-
-                <strong>
-                    {{ "%.2f"|format(result.ai_probability * 100) }}%
-                </strong>
-
-            </div>
-
-
-            <!-- AI PROGRESS BAR -->
-
-            <div class="ai-progress-container">
-
-                <div class="ai-progress-label">
-
-                    <span>
-                        AI Risk Level
-                    </span>
-
-                    <span>
-                        {{ "%.2f"|format(result.ai_probability * 100) }}%
-                    </span>
-
+                <p class="form-hint" id="scan-hint">Example to try: <button type="button" class="link-btn" data-fill-example>http://free-paypal-bonus-login.example.com</button> &middot; Full URLs (with http/https) work best.</p>
+                <p class="form-error" id="scan-error" data-form-error role="alert" {% if not error %}hidden{% endif %}>{% if error %}{{ error }}{% else %}Enter a URL such as <code>https://example.com</code>.{% endif %}</p>
+                <div class="scan-status" data-scan-status hidden aria-live="polite">
+                    <span class="spinner" aria-hidden="true"></span> Analyzing URL structure and risk signals&hellip;
                 </div>
-
-
-                <div class="ai-progress-track">
-
-                    <div
-                        class="ai-progress-bar"
-                        style="width: {{ result.ai_probability * 100 }}%;"
-                    ></div>
-
-                </div>
-
-            </div>
-
-
-            <!-- AI ASSESSMENT -->
-
-            {% if result.ai_probability >= 0.80 %}
-
-            <div class="ai-result high-ai">
-                🔴 AI-only assessment: HIGH phishing probability.
-            </div>
-
-            {% elif result.ai_probability >= 0.60 %}
-
-            <div class="ai-result medium-ai">
-                🟠 AI-only assessment: ELEVATED phishing probability.
-            </div>
-
-            {% elif result.ai_probability >= 0.30 %}
-
-            <div class="ai-result moderate-ai">
-                🟡 AI-only assessment: MODERATE phishing probability.
-            </div>
-
-            {% else %}
-
-            <div class="ai-result safe-ai">
-                🟢 AI-only assessment: LOW phishing probability.
-            </div>
-
-            {% endif %}
-
-
-            <!-- AI INFORMATION -->
-
-            <div class="ai-info">
-
-                🤖 The Random Forest machine-learning model evaluates
-                URL characteristics independently from the rule-based checks.
-
-            </div>
-
-
-            <!-- COMBINED RESULT EXPLANATION -->
-
-            <div class="ai-combined-result">
-
-                <strong>
-                    Why is the overall score higher?
-                </strong>
-
-                <p>
-                    The AI model provides an independent phishing probability.
-                    The final risk score combines AI analysis, rule-based
-                    indicators, and Google Safe Browsing to produce the
-                    overall security assessment.
-                </p>
-
-            </div>
-
+            </form>
         </div>
 
+        {% if result %}
+        <!-- ================= SECURITY ASSESSMENT ================= -->
+        <article class="report" aria-label="Security assessment result" data-result data-prediction="{{ result.prediction }}" data-score="{{ result.score }}" data-url="{{ result.url }}">
 
-        <!-- ========================= -->
-        <!-- GOOGLE SAFE BROWSING -->
-        <!-- ========================= -->
-
-        <h2>🛡️ Google Safe Browsing</h2>
-
-        {% if result.google_threat_types %}
-
-        <div class="google-danger">
-
-            <div class="google-status-title">
-                🚨 KNOWN THREAT DETECTED
-            </div>
-
-            <p>
-                Google Safe Browsing identified this URL
-                as an unsafe resource.
-            </p>
-
-            <p>
-                <strong>Threat types:</strong>
-            </p>
-
-            <ul>
-
-                {% for threat in result.google_threat_types %}
-
-                <li>
-                    {{ threat }}
-                </li>
-
-                {% endfor %}
-
-            </ul>
-
-        </div>
-
-        {% else %}
-
-        <div class="google-safe">
-
-            <div class="google-status-title">
-                ✅ NO KNOWN THREATS
-            </div>
-
-        </div>
-
-        <p class="google-description">
-
-            Google Safe Browsing did not identify this URL
-            as a known unsafe resource.
-
-        </p>
-
-        {% endif %}
-
-
-        <!-- ========================= -->
-        <!-- OVERALL ASSESSMENT -->
-        <!-- ========================= -->
-
-        <h2>🧠 Overall Assessment</h2>
-
-        <div class="overall-assessment">
-
-            <div class="overall-score">
-                {{ result.score }} / 10
-            </div>
-
-            <div class="overall-level
-                {% if result.risk_level == 'LOW RISK' %}
-                    overall-low
-                {% elif result.risk_level == 'MEDIUM RISK' %}
-                    overall-medium
-                {% else %}
-                    overall-high
-                {% endif %}
-            ">
-                {{ result.risk_level }}
-            </div>
-
+            <p class="eyebrow center">Security assessment</p>
 
             {% if result.prediction == "PHISHING" %}
-
-            <p class="overall-danger">
-
-                🔴 CyberShield AI classified this website as
-                <strong>PHISHING</strong> based on the combined
-                security analysis.
-
-            </p>
-
+            <div class="verdict verdict-danger" role="alert">
+                {% if result.score >= 5 %}
+                <span class="verdict-badge">High risk</span>
+                {% else %}
+                <span class="verdict-badge">Elevated risk</span>
+                {% endif %}
+                <h2>Phishing detected</h2>
+                <p class="verdict-sub">This URL shows multiple phishing indicators. Treat it as dangerous.</p>
+            </div>
             {% else %}
-
-            <p class="overall-safe">
-
-                🟢 CyberShield AI classified this website as
-                <strong>SAFE</strong> based on the combined
-                security analysis.
-
-            </p>
-
+            <div class="verdict verdict-safe" role="status">
+                {% if result.score >= 3 %}
+                <span class="verdict-badge">Elevated risk</span>
+                {% else %}
+                <span class="verdict-badge">Low risk</span>
+                {% endif %}
+                <h2>Appears safe</h2>
+                <p class="verdict-sub">No strong phishing indicators found in this local screening.</p>
+            </div>
             {% endif %}
 
+            <div class="report-grid">
+                <div class="report-main">
+                    <section class="panel" aria-labelledby="h-score">
+                        <h3 id="h-score">Risk score</h3>
+                        <div class="score-row">
+                            <strong class="score-num">{{ result.score }}<span>/10</span></strong>
+                            <div class="score-meta">
+                                {% if result.score >= 5 %}
+                                <span class="badge badge-danger">High &middot; 5&ndash;10</span>
+                                {% elif result.score >= 3 %}
+                                <span class="badge badge-warn">Elevated &middot; 3&ndash;4</span>
+                                {% else %}
+                                <span class="badge badge-safe">Low &middot; 0&ndash;2</span>
+                                {% endif %}
+                                <p class="muted">Threshold: score of 4 or above is classified as phishing.</p>
+                            </div>
+                        </div>
+                        <div class="risk-bar lg" role="img" aria-label="Risk score {{ result.score }} out of 10">
+                            <span data-risk-fill style="width:{{ (result.score * 10) if result.score <= 10 else 100 }}%"></span>
+                        </div>
+                        <dl class="kv">
+                            <div><dt>Scanned URL</dt><dd class="url-break">{{ result.url }}</dd></div>
+                            <div><dt>Verdict</dt><dd>{{ result.prediction }}</dd></div>
+                        </dl>
+                    </section>
+
+                    <section class="panel" aria-labelledby="h-ai">
+                        <h3 id="h-ai">AI model analysis</h3>
+                        <p class="muted">Random Forest phishing probability from URL structure features.</p>
+                        <div class="meter-row">
+                            <span>Phishing likelihood</span>
+                            {% if result.model_probability is not none %}
+                            <strong>{{ (result.model_probability * 100)|round|int }}%</strong>
+                            {% else %}
+                            <strong>Unavailable</strong>
+                            {% endif %}
+                        </div>
+                        {% if result.model_probability is not none %}
+                        <div class="risk-bar" role="img" aria-label="Estimated phishing likelihood {{ (result.model_probability * 100)|round|int }} percent">
+                            <span data-risk-fill style="width:{{ (result.model_probability * 100)|round|int }}%"></span>
+                        </div>
+                        {% endif %}
+                        <ul class="check-list">
+                            <li>URL features are extracted locally; page-content features are unavailable</li>
+                            <li>Final risk score is the stronger of the model estimate and rule score</li>
+                            <li>Decision threshold at 4 / 10</li>
+                        </ul>
+                    </section>
+
+                    <section class="panel" aria-labelledby="h-rules">
+                        <h3 id="h-rules">Rule-based security analysis</h3>
+                        <p class="muted">{{ result.reasons|length }} indicator{{ 's' if result.reasons|length != 1 }} evaluated.</p>
+                        <ul class="indicator-list">
+                            {% for reason in result.reasons %}
+                            <li>
+                                <span class="flag-icon {% if 'No suspicious' in reason %}ok{% else %}warn{% endif %}" aria-hidden="true">
+                                    {% if 'No suspicious' in reason %}
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                                    {% else %}
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                                    {% endif %}
+                                </span>
+                                {{ reason }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </section>
+                </div>
+
+                <div class="report-side">
+                    <section class="panel" aria-labelledby="h-gsb">
+                        <h3 id="h-gsb">Safe browsing</h3>
+                        {% if result.prediction == "PHISHING" %}
+                        <p class="status-line danger"><span class="dot dot-red"></span> Local screening: threat pattern</p>
+                        {% else %}
+                        <p class="status-line safe"><span class="dot dot-green"></span> Local screening: no threat pattern</p>
+                        {% endif %}
+                        <p class="muted small">This build screens locally and does not query Google Safe Browsing. For high-stakes links, cross-check the domain independently before signing in.</p>
+                    </section>
+
+                    <section class="panel recommend {% if result.prediction == 'PHISHING' %}rec-danger{% else %}rec-safe{% endif %}" aria-labelledby="h-rec">
+                        <h3 id="h-rec">Security recommendation</h3>
+                        <p>{{ result.recommendation }}</p>
+                        {% if result.prediction == "PHISHING" %}
+                        <ul class="rec-list">
+                            <li>Do not enter passwords, OTPs, or payment details.</li>
+                            <li>Verify the sender and domain through a known-good channel.</li>
+                            <li>Report the link if it arrived by email, SMS, or social media.</li>
+                        </ul>
+                        {% else %}
+                        <ul class="rec-list">
+                            <li>Still confirm the domain spelling before signing in.</li>
+                            <li>Prefer bookmarks or typed addresses for banking and email.</li>
+                        </ul>
+                        {% endif %}
+                    </section>
+
+                    <a class="btn btn-secondary btn-block" href="{{ url_for('scanner') }}">Scan another URL</a>
+                </div>
+            </div>
+        </article>
+        {% else %}
+        <div class="empty-hint">
+            <h2>What gets checked?</h2>
+            <ul class="chip-row">
+                <li>HTTPS present</li>
+                <li>URL length</li>
+                <li>Hyphens</li>
+                <li><code>@</code> symbol</li>
+                <li>IP literal</li>
+                <li>Risky keywords</li>
+                <li>Dot count</li>
+            </ul>
         </div>
-
-
-        <!-- ========================= -->
-        <!-- RECOMMENDATION -->
-        <!-- ========================= -->
-
-        <h2>💡 Security Recommendation</h2>
-
-        <div class="recommendation">
-
-            {{ result.recommendation }}
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- DOWNLOAD REPORT -->
-        <!-- ========================= -->
-
-        <div class="download-container">
-
-            <a
-                href="{{ url_for('download_report') }}"
-                class="download-btn"
-            >
-                📄 Download Security Report
-            </a>
-
-        </div>
-
-
-        <!-- ========================= -->
-        <!-- FOOTER -->
-        <!-- ========================= -->
-
-        <div class="scanner-footer">
-
-            🛡️ Analysis performed by CyberShield AI
-
-            <br>
-
-            🤖 Rule-Based Detection
-            + Random Forest Machine Learning
-            + Google Safe Browsing
-
-        </div>
-
+        {% endif %}
 
     </div>
-
-    {% endif %}
-
-</div>
+</section>
 
 {% endblock %}

@@ -1,194 +1,52 @@
-import os
+"""Validated Random Forest loading and inference."""
+from functools import lru_cache
+import logging
+from pathlib import Path
+
 import joblib
 import pandas as pd
 
-from feature_extractor import extract_features
+from model_features import FEATURE_COLUMNS, to_model_row
+
+logger = logging.getLogger(__name__)
+MODEL_PATH = Path(__file__).resolve().parent / "model" / "phishing_model.joblib"
 
 
-# =========================================================
-# LOAD TRAINED AI MODEL
-# =========================================================
-
-MODEL_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "model",
-    "phishing_model.pkl"
-)
-
-
-try:
-
-    saved_data = joblib.load(MODEL_PATH)
-
-    # New model format
-    if isinstance(saved_data, dict):
-
-        model = saved_data["model"]
-
-        FEATURE_NAMES = saved_data["features"]
-
-    else:
-
-        # Compatibility with the previous model
-        model = saved_data
-
-        FEATURE_NAMES = [
-            "url_length",
-            "dot_count",
-            "hyphen_count",
-            "has_at",
-            "has_ip",
-            "https",
-            "no_https",
-            "hostname_length",
-            "dash_in_hostname",
-            "hostname_dots",
-            "domain_length",
-            "domain_in_subdomains",
-            "path_length",
-            "domain_in_path",
-            "double_slash_in_path",
-            "query_length",
-            "query_components",
-            "ampersand_count",
-            "hash_count",
-            "percent_count",
-            "underscore_count",
-            "numeric_chars",
-            "sensitive_words",
-            "embedded_brand",
-            "https_in_hostname"
-        ]
-
-
-    print("AI model loaded successfully.")
-
-    print(
-        "AI features:",
-        len(FEATURE_NAMES)
-    )
-
-
-except Exception as e:
-
-    model = None
-
-    FEATURE_NAMES = []
-
-    print(
-        "ERROR: Could not load AI model:",
-        e
-    )
-
-
-# =========================================================
-# AI PREDICTION
-# =========================================================
-
-def predict_with_ai(url):
-
-    if model is None:
-
-        return None, 0.0
-
-
+@lru_cache(maxsize=1)
+def _load_model():
+    if not MODEL_PATH.is_file():
+        return None
     try:
-
-        # ---------------------------------------------
-        # Extract URL features
-        # ---------------------------------------------
-
-        features = extract_features(url)
-
-
-        # ---------------------------------------------
-        # Create feature row
-        # ---------------------------------------------
-
-        ai_features = {}
-
-        for feature_name in FEATURE_NAMES:
-
-            ai_features[feature_name] = (
-                features.get(
-                    feature_name,
-                    0
-                )
-            )
+        artifact = joblib.load(MODEL_PATH)
+        if not isinstance(artifact, dict) or artifact.get("version") != 1:
+            raise ValueError("unsupported artifact format")
+        if artifact.get("feature_columns") != list(FEATURE_COLUMNS):
+            raise ValueError("feature schema mismatch")
+        model = artifact.get("model")
+        if not callable(getattr(model, "predict_proba", None)):
+            raise ValueError("model has no probability output")
+        if getattr(model, "n_features_in_", None) != len(FEATURE_COLUMNS):
+            raise ValueError("model feature count mismatch")
+        classes = list(getattr(model, "classes_", ()))
+        if 1 not in classes:
+            raise ValueError("model is missing phishing class")
+        return model
+    except Exception as exc:
+        # Keep scanning available with rules, without returning internal paths or
+        # deserialization details to the requester.
+        logger.warning("Random Forest unavailable (%s); using rule-based detection", type(exc).__name__)
+        return None
 
 
-        # ---------------------------------------------
-        # Create DataFrame
-        # ---------------------------------------------
-
-        X = pd.DataFrame(
-            [ai_features],
-            columns=FEATURE_NAMES
-        )
-
-
-        # ---------------------------------------------
-        # AI prediction
-        # ---------------------------------------------
-
-        prediction = model.predict(X)[0]
-
-
-        # ---------------------------------------------
-        # AI probability
-        # ---------------------------------------------
-
-        if hasattr(
-            model,
-            "predict_proba"
-        ):
-
-            probabilities = model.predict_proba(X)[0]
-
-            classes = list(
-                model.classes_
-            )
-
-
-            if 1 in classes:
-
-                phishing_index = (
-                    classes.index(1)
-                )
-
-                phishing_probability = (
-                    probabilities[
-                        phishing_index
-                    ]
-                )
-
-            else:
-
-                phishing_probability = 0.0
-
-        else:
-
-            phishing_probability = (
-                1.0
-                if prediction == 1
-                else 0.0
-            )
-
-
-        return (
-
-            int(prediction),
-
-            float(phishing_probability)
-
-        )
-
-
-    except Exception as e:
-
-        print(
-            "AI prediction error:",
-            e
-        )
-
-        return None, 0.0
+def predict_url(features):
+    """Return class-1 phishing probability, or None when no valid model exists."""
+    model = _load_model()
+    if model is None:
+        return None
+    row = pd.DataFrame([to_model_row(features)], columns=FEATURE_COLUMNS)
+    probabilities = model.predict_proba(row)[0]
+    classes = list(model.classes_)
+    probability = float(probabilities[classes.index(1)])
+    if not 0.0 <= probability <= 1.0:
+        raise ValueError("Model returned an invalid probability")
+    return probability
