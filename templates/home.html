@@ -7,7 +7,7 @@
         <div class="hero-copy">
             <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> Detection engine online</p>
             <h1>CyberShield AI<br><span class="h1-accent">AI-Powered Phishing Detection</span></h1>
-            <p class="lede">Paste a suspicious link and get an instant, explainable risk assessment &mdash; heuristic rules, model-style scoring, and clear next steps &mdash; before you click.</p>
+            <p class="lede">Paste a suspicious link and get an instant, explainable assessment from URL-based Random Forest analysis, weighted rules, and clear next steps &mdash; before you click.</p>
 
             <form class="scan-form hero-scan" method="POST" action="{{ url_for('scanner') }}" data-scan-form novalidate>
                 <label class="sr-only" for="hero-url">Website URL to scan</label>
@@ -51,7 +51,6 @@
                 <li><span class="dot dot-red"></span>Uses HTTP instead of HTTPS</li>
                 <li><span class="dot dot-red"></span>Contains multiple hyphens</li>
                 <li><span class="dot dot-amber"></span>Contains suspicious keywords</li>
-                <li><span class="dot dot-amber"></span>Lookalike brand spelling (paypaI)</li>
             </ul>
             <a class="btn btn-secondary btn-block" href="{{ url_for('scanner') }}">Run your own scan</a>
             <p class="panel-foot">Sample output &mdash; your results explain every flag.</p>

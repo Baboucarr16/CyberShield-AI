@@ -92,7 +92,7 @@
                         <h3 id="h-ai">AI model analysis</h3>
                         <p class="muted">Random Forest phishing probability from URL structure features.</p>
                         <div class="meter-row">
-                            <span>Phishing likelihood</span>
+                            <span>Random Forest phishing probability</span>
                             {% if result.model_probability is not none %}
                             <strong>{{ (result.model_probability * 100)|round|int }}%</strong>
                             {% else %}

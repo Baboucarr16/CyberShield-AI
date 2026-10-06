@@ -5,8 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CyberShield AI — AI-assisted phishing URL detection. Scan suspicious links, review risk indicators, and learn safe-browsing practices.">
     <title>{% block title %}CyberShield AI — Phishing Detection{% endblock %}</title>
+    <script>
+        (function () {
+            var theme = "dark";
+            var saved = null;
+            try {
+                saved = localStorage.getItem("cybershield.theme");
+            } catch (error) {}
+            if (saved === "light" || saved === "dark") {
+                theme = saved;
+            } else {
+                try {
+                    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+                        theme = "light";
+                    }
+                } catch (error) {}
+            }
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+        })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/cybershield-mark.svg') }}">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -31,6 +51,16 @@
             <li><a href="{{ url_for('dashboard') }}" class="{% if request.path.startswith('/dashboard') %}active{% endif %}">Dashboard</a></li>
             <li><a href="{{ url_for('about') }}" class="{% if request.path.startswith('/about') %}active{% endif %}">About</a></li>
             <li class="nav-cta-item"><a href="{{ url_for('scanner') }}" class="btn btn-sm">Scan a URL</a></li>
+            <li class="nav-theme-item">
+                <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to light theme" title="Switch to light theme">
+                    <svg class="theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle data-theme-sun cx="12" cy="12" r="4"></circle>
+                        <path data-theme-sun d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"></path>
+                        <path data-theme-moon d="M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z"></path>
+                    </svg>
+                    <span data-theme-label>Light</span>
+                </button>
+            </li>
         </ul>
     </nav>
 </header>

@@ -2,6 +2,31 @@
 (function () {
   "use strict";
 
+  var themeToggle = document.querySelector("[data-theme-toggle]");
+  var themeLabel = document.querySelector("[data-theme-label]");
+  function setTheme(theme, persist) {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    var target = theme === "dark" ? "light" : "dark";
+    var label = target === "light" ? "Light" : "Dark";
+    if (themeLabel) themeLabel.textContent = label;
+    if (themeToggle) {
+      themeToggle.setAttribute("aria-label", "Switch to " + target + " theme");
+      themeToggle.setAttribute("title", "Switch to " + target + " theme");
+    }
+    if (persist) {
+      try { localStorage.setItem("cybershield.theme", theme); }
+      catch (e) { /* Theme still applies for this page when storage is unavailable. */ }
+    }
+  }
+  var initialTheme = document.documentElement.dataset.theme === "light" ? "light" : "dark";
+  setTheme(initialTheme, false);
+  if (themeToggle) {
+    themeToggle.addEventListener("click", function () {
+      setTheme(document.documentElement.dataset.theme === "light" ? "dark" : "light", true);
+    });
+  }
+
   // Mobile nav
   var toggle = document.querySelector(".nav-toggle");
   var menu = document.getElementById("nav-menu");
